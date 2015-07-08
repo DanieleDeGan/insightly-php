@@ -10,6 +10,7 @@ and encoding to minimize learning curve and debugging overhead for new users.
 The library provides the ability to read/write/delete
 all major Insightly objects, including:
 
+* Leads
 * Contacts
 * Events
 * Organizations
