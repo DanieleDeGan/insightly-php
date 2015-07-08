@@ -166,6 +166,99 @@ class Insightly{
     $this->apikey = $apikey;
   }
 
+/**
+   * Gets a list of leads 
+   * 
+   * @param array $options
+   * @return mixed
+   * @link https://api.insight.ly/v2.1/Help/Api/GET-Leads_ids_email_tag_includeConverted
+   */
+  public function getLeads($options = null){
+    $email = isset($options["email"]) ? $options["email"] : null;
+    $tag = isset($options["tag"]) ? $options["tag"] : null;
+    $ids = isset($options["ids"]) ? $options["ids"] : null;
+    $includeConverted = isset($options["includeConverted"]) ? $options["includeConverted"] : null;
+
+    $request = $this->GET("/v2.1/Leads");
+
+    // handle standard OData options
+    $this->buildODataQuery($request, $options);
+
+    // handle other options
+    if($email != null){
+      $request->queryParam("email", $email);
+    }
+    if($tag != null){
+      $request->queryParam("tag", $tag);
+    }
+    if($ids != null){
+      $s = "";
+      foreach($ids as $key => $value){
+        if($key > 0){
+          $s = $s . ",";
+        }
+        $s = $s . $value;
+      }
+      $request->queryParam("ids", $s);
+    }	
+	if($includeConverted != null){
+      $request->queryParam("includeConverted", $includeConverted);
+    }
+
+    return $request->asJSON();
+  }
+  
+  /**
+   * Gets a lead
+   * 
+   * @param int $id
+   * @return mixed
+   * @link https://api.insight.ly/v2.1/Help/Api/GET-Leads-id
+   */
+  public function getLead($id){
+    return $this->GET("/v2.1/Leads/" . $id)->asJSON();
+  }  
+  
+  /**
+   * Adds a new lead (or update if exists) 
+   * 
+   * @param stdClass $lead
+   * @return mixed
+   * @link https://api.insight.ly/v2.1/Help/Api/POST-Leads
+   */
+  public function addLead($lead){
+    $url_path = "/v2.1/Leads";
+    $request = null;
+
+    if(isset($lead->LEAD_ID) && $lead->LEAD_ID > 0){
+      $request = $this->PUT($url_path);
+    }
+    else{
+      $request = $this->POST($url_path);
+	  
+    }
+
+    return $request->body($lead)->asJSON();
+  }
+  
+  public function deleteLead($id){
+    $this->DELETE("/v2.1/Leads/$id")->asString();
+    return true;
+  }
+  
+  public function getLeadEmails($lead_id){
+    return $this->GET("/v2.1/Leads/$lead_id/Emails")->asJSON();
+  }
+
+  public function getLeadNotes($lead_id){
+    return $this->GET("/v2.1/Leads/$lead_id/Notes")->asJSON();
+  }
+
+  public function getLeadTasks($lead_id){
+    return $this->GET("/v2.1/Leads/$lead_id/Tasks")->asJSON();
+  }
+  
+
   /**
    * Gets a list of contacts 
    * 
